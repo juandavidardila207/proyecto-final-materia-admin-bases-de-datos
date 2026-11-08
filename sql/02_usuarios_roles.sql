@@ -1,0 +1,61 @@
+-- =========================================================
+-- GESTIÓN DE USUARIOS: política de contraseñas, perfil, roles y cuentas de esquema
+-- =========================================================
+CREATE OR REPLACE FUNCTION SYS.VERIFICA_CLAVE_UNIV (
+  username VARCHAR2, password VARCHAR2, old_password VARCHAR2
+) RETURN BOOLEAN IS
+BEGIN
+  IF LENGTH(password) < 10
+     OR NOT REGEXP_LIKE(password, '[A-Z]')
+     OR NOT REGEXP_LIKE(password, '[a-z]')
+     OR NOT REGEXP_LIKE(password, '[0-9]')
+     OR NOT REGEXP_LIKE(password, '[^A-Za-z0-9]') THEN
+    RAISE_APPLICATION_ERROR(-20101,
+      'La contraseña debe tener mínimo 10 caracteres, con mayúscula, minúscula, número y símbolo.');
+  END IF;
+  IF INSTR(UPPER(password), UPPER(username)) > 0 THEN
+    RAISE_APPLICATION_ERROR(-20102, 'La contraseña no puede contener el nombre de usuario.');
+  END IF;
+  RETURN TRUE;
+END;
+/
+
+CREATE PROFILE PERF_UNIV_USUARIOS LIMIT
+  SESSIONS_PER_USER        10
+  IDLE_TIME                60
+  FAILED_LOGIN_ATTEMPTS    5
+  PASSWORD_LOCK_TIME       1/24
+  PASSWORD_LIFE_TIME       180
+  PASSWORD_GRACE_TIME      7
+  PASSWORD_REUSE_TIME      30
+  PASSWORD_REUSE_MAX       3
+  PASSWORD_VERIFY_FUNCTION VERIFICA_CLAVE_UNIV;
+
+-- Dueño de los datos del taller
+CREATE USER UNIVERSIDAD IDENTIFIED BY "&pw_owner"
+  DEFAULT TABLESPACE TS_UNIV_DATOS
+  TEMPORARY TABLESPACE TEMP_UNIV
+  QUOTA 500M ON TS_UNIV_DATOS
+  QUOTA 200M ON TS_UNIV_INDICES;
+GRANT CREATE SESSION, CREATE TABLE, CREATE VIEW, CREATE TRIGGER, CREATE SEQUENCE TO UNIVERSIDAD;
+
+-- Dueño de bitácora y administración. Sin contraseña: nadie puede iniciar sesión con él.
+CREATE USER UNIV_SEC NO AUTHENTICATION
+  DEFAULT TABLESPACE TS_UNIV_AUDITORIA
+  TEMPORARY TABLESPACE TEMP_UNIV
+  QUOTA 400M ON TS_UNIV_AUDITORIA;
+GRANT CREATE TABLE, CREATE VIEW, CREATE PROCEDURE, CREATE TRIGGER TO UNIV_SEC;
+
+-- Roles de la aplicación
+-- CONSULTA: solo lectura | OPERADOR: lectura + insertar/actualizar/eliminar
+-- AUDITOR: lectura + auditoría | ADMIN: todo lo anterior + usuarios y almacenamiento
+CREATE ROLE ROL_UNIV_CONSULTA;
+CREATE ROLE ROL_UNIV_OPERADOR;
+CREATE ROLE ROL_UNIV_AUDITOR;
+CREATE ROLE ROL_UNIV_ADMIN;
+
+GRANT CREATE SESSION TO ROL_UNIV_CONSULTA;
+GRANT ROL_UNIV_CONSULTA TO ROL_UNIV_OPERADOR;
+GRANT ROL_UNIV_CONSULTA TO ROL_UNIV_AUDITOR;
+GRANT ROL_UNIV_OPERADOR, ROL_UNIV_AUDITOR TO ROL_UNIV_ADMIN;
+GRANT AUDIT_VIEWER TO ROL_UNIV_AUDITOR;

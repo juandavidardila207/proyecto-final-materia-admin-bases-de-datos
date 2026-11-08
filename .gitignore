@@ -1,0 +1,8 @@
+# Contraseñas reales: cada quien crea la suya a partir de sql/00_parametros.ejemplo.sql
+sql/00_parametros.sql
+
+# Backups generados por los scripts (Data Pump / RMAN)
+backup/archivos/
+
+# Sistema
+.DS_Store

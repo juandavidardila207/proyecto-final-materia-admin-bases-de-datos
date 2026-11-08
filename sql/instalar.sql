@@ -1,0 +1,27 @@
+-- Instalación completa. Se ejecuta con ../instalar.sh (como SYSDBA dentro del contenedor).
+WHENEVER SQLERROR EXIT SQL.SQLCODE
+SET VERIFY OFF SERVEROUTPUT ON FEEDBACK OFF
+ALTER SESSION SET CONTAINER = FREEPDB1;
+@@00_parametros.sql
+PROMPT [1/6] Gestión de almacenamiento (tablespaces)...
+@@01_almacenamiento.sql
+PROMPT [2/6] Perfil, roles y cuentas de esquema...
+@@02_usuarios_roles.sql
+PROMPT [3/6] Script del taller (tablas y datos)...
+ALTER SESSION SET CURRENT_SCHEMA = UNIVERSIDAD;
+SET DEFINE OFF
+@@03_taller_freesql.sql
+PROMPT [3/6] Tabla de estudiantes (ampliación del modelo)...
+@@03b_estudiantes.sql
+PROMPT [3/6] Asignación de materias a profesores (ampliación del modelo)...
+@@03c_asignaciones.sql
+SET DEFINE ON
+ALTER SESSION SET CURRENT_SCHEMA = SYS;
+PROMPT [4/6] Organización física (índices y estadísticas)...
+@@04_organizacion_fisica.sql
+PROMPT [5/6] Bitácora, monitoreo, gestión de usuarios y usuarios demo...
+@@05_seguridad.sql
+PROMPT [6/6] Auditoría unificada...
+@@06_auditoria.sql
+PROMPT Instalación terminada.
+EXIT
