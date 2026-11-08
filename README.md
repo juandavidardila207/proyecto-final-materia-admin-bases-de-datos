@@ -31,8 +31,8 @@ Docker Desktop o ejecutes `docker stop oracle`.
 
 ### Iniciar sesión
 
-Se entra con usuarios **reales de Oracle**. Las contraseñas están en `sql/00_parametros.sql`, que se crea a partir de
-[`sql/00_parametros.ejemplo.sql`](sql/00_parametros.ejemplo.sql) y no se sube al repositorio.
+Se entra con usuarios **reales de Oracle**. Las contraseñas de demostración están en
+[`sql/00_parametros.sql`](sql/00_parametros.sql).
 
 | Usuario | Rol | Ve en el menú |
 |---|---|---|
@@ -66,11 +66,6 @@ WSL (Ubuntu), porque los scripts son de bash. Descomprime el proyecto, abre una 
 chmod +x *.sh backup/*.sh
 ```
 
-```bash
-cp sql/00_parametros.ejemplo.sql sql/00_parametros.sql
-```
-
-Abre `sql/00_parametros.sql` y cambia las contraseñas antes de instalar.
 
 ```bash
 ./crear_contenedor.sh
@@ -222,4 +217,6 @@ y luego haz un backup nuevo.
 
 - El taller pide "código del departamento", pero el esquema entregado solo tiene `departamento` como texto.
   La consulta 4 usa ese nombre: agregar un código implicaría cambiar la estructura que dio el cliente.
-- Las contraseñas de `sql/00_parametros.ejemplo.sql` son solo un ejemplo: cámbialas en tu `00_parametros.sql`.
+- Las contraseñas de `sql/00_parametros.sql` son de demostración, para una base local. Si instalas el proyecto en otro lugar, cámbialas.
+- La instalación carga los datos actuales del sistema (`sql/03d_datos_actuales.sql`): 31 profesores, 41 materias, 61 estudiantes, 121 asignaciones y 121 matrículas. En `backup/archivos/` hay además un export de Data Pump con ese mismo estado.
+- El historial de la bitácora y de la auditoría no se incluye: se registra mientras se usa el sistema y una instalación nueva arranca vacía.
