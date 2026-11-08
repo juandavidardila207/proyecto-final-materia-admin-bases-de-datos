@@ -4,8 +4,7 @@ set -euo pipefail
 C="${1:-oracle}"
 cd "$(dirname "$0")"
 if [ ! -f sql/00_parametros.sql ]; then
-  echo "Falta sql/00_parametros.sql (las contraseñas de los usuarios)."
-  echo "Créalo con:  cp sql/00_parametros.ejemplo.sql sql/00_parametros.sql   y cambia las contraseñas."
+  echo "Falta sql/00_parametros.sql (las contraseñas de los usuarios). Descárgalo de nuevo del repositorio."
   exit 1
 fi
 docker start "$C" >/dev/null
